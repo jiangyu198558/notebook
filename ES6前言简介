@@ -66,3 +66,71 @@ npm install --save-dev babel-cli
   },
 }
 执行命令： npm run build
+
+babel-node
+babel-cli工具自带一个babel-node命令，提供一个支持ES6的REPL环境。它支持NODE的REPL环境的所有功能，而且可以直接运行ES6代码。
+它不用单独安装，随babel-cli一起安装，执行babel-node就进入REPL环境
+babel-node
+(x => x*2)(1)
+2
+babel-node命令可以直接运行ES6脚本。babel-node es6.js
+
+babel-register
+babel-register模块改写require命令，为它加上一个钩子。此后，每当使用require加载.js、.jsx、.es、.es6后缀名的文件，就会先用Babel进行转码。
+npm install --save-dev babel-register
+
+require("babel-register");
+require("./index.js");
+
+babel-core
+如果某些代码需要调用Babel的API进行转码，就要使用babel-core模块。
+npm install babel-core --save
+
+var babel = require("babel-core");
+babel.transform('code();', options);
+
+babel.transformFile('filename.js', options, function(err, result){
+  result;
+});
+
+babel.transformFileSync('filename.js', options);
+
+babel.transformFromAst(ast, code, options);
+例子
+var es6Code = 'let x = n=>n+1';
+var es5Code = require('babel-core').transform(es6Code, { presets: ['es2015']}).code;
+
+babel-polyfill
+Babel默认只转换新的JavaScript语法，而不转换新的API，比如Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise等全局对象，以及一些在
+全局对象上的方法都不会转码。
+安装命令如下： npm install --save babel-polyfill
+引入import 'babel-polyfill'; 或 require('babel-polyfill');
+
+浏览器环境
+<script src="node_modules/babel-core/browser.js"></script>
+<script type="text/babel">
+  // your es6 code
+</script>
+
+其他工具
+eslint用于静态检查代码的语法和风格、mocha是一个测试框架
+
+Traceur转码器 Google公司的Traceur转码器，也可以将ES6代码转为ES5代码
+直接插入网页
+<script src="https://google.github.io/traceur-commpiler/bin/traceur.js"></script>
+<script src="https://google.github.io/traceur-commpiler/bin/BrowserSystem.js"></script>
+<script src="https://google.github.io/traceur-commpiler/src/bootstrap.js"></script>
+<script type="module">
+  //import './Greeter.js';
+  class Calc {
+    constructor(){
+      console.log('Calc constructor');
+    }
+    add(a, b){
+      return a + b;
+    }
+  }
+  var c = new Calc();
+  console.log(c.add(4,5));
+</script>
+
