@@ -154,3 +154,89 @@ let str = '(name) => `Hello ${name}!`';
 let func = eval.call(null, str);
 func('Jack') // "Hello Jack!"
 
+var template = `
+<ul>
+    <% for(var i=0; i<data.supplies.length; i++) { %>
+        <li><%= data.supplies[i] %></li>
+    <% } %>
+</ul>
+`;
+
+echo('<ul>');
+for(var i=0; i<data.supplies.length; i++){
+    echo('<li>');
+    echo(data.supplies[i]);
+    echo('</li>');
+};
+echo('</ul>');
+
+// 这个转换使用正则表达式就行了
+var evalExpr = /<%=(.+?)%>/g;
+var expr = /<%([\s\S]+?)%>/g;
+
+template = template.replace(evalExpr, '`);\n echo($1); \n echo(`').replace(expr, '`);\n $1 \n echo(`');
+template = 'echo(`' + template + '`);';
+
+var script = `(function parse(data){
+    var output = "";
+
+    function echo(html){
+        output += html;
+    }
+
+    ${template}
+
+    return output;
+})`;
+return script;
+
+function compile(template){
+    var evalExpr = /<%=(.+?)%>/g;
+    var expr = /<%([\s\S]+?)%>/g;
+
+    template = 'echo(`'+template+'`);';
+
+    var script = `(function parse(data){
+        var output = '';
+        function echo(html){
+            output += html;
+        }
+
+        ${template}
+
+        return output;
+    })`;
+    return script;
+}
+
+var parse = eval(compile(template));
+div.innerHTML = parse({supplies: ["broom", "mop", "cleaner"]});
+
+11、标签模板
+模板字符串的功能，不仅仅是上面这些。它可以紧跟在一个函数名后面，该函数将被调用来处理这个模板字符串。这被称为“标
+签模板”功能（tagged template）。
+alert`123`
+// 等同于
+alert(123)
+“标签”指的就是函数，紧跟在后面的模板字符串就是它的参数。
+var a = 5;
+var b = 10;
+tag`Hello ${a+b} world ${a*b}`;
+“标签模板”的一个重要应用，就是过滤HTML字符串，防止用户输入恶意内容。
+
+12、String.raw()
+String.raw方法，用来充当模板字符串的处理函数，返回一个斜杠都被转义的字符串，对应于替换变量后的模板字符串。
+String.raw`Hi\n${2+3}!`;
+// "Hi\\n5!"
+String.raw`Hi\u000A!`;
+// 'Hi\\u000A!'
+
+String.raw = function(strings, ...values){
+  var output = "";
+  for(var index = 0; index < values.length; index++){
+    output += strings.raw[index] + values[index];
+  }
+  
+  output += strings.raw[index];
+  return output;
+}
