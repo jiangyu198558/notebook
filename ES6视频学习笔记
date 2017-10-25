@@ -1,0 +1,844 @@
+第1节：ES6的开发环境搭建
+建立工程目录：src dist index.html
+编写index.html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="./dist/index.js"></script>
+    </head>
+    <body>
+        Hello ECMA Script 6
+    </body>
+</html>
+
+编写index.js
+let a = 1;
+console.log(a);
+
+初始化项目  npm init -y
+全局安装Babel-cli
+npm install -g babel-cli
+转换命令： babel src/index.js -o dist/index.js
+
+本地安装babel-preset-es2015 和 babel-cli
+npm install --save-dev babel-preset-es2015 babel-cli
+
+新建.babelrc
+{
+    "presets": [
+        "es2015"
+    ],
+    "plugins": []
+}
+
+
+第2节：新的声明方式
+var 声明
+let 声明
+const 声明常量
+
+var在ES6里面是用来升级全局变量的
+var a = 'JavaScript';
+console.log(a);
+
+var a = 'JavaScript';
+window.onload = function(){
+    console.log(a);
+}
+
+var a = 2;
+{
+    var a = 3;
+}
+console.log(a);   // 3 ? var是全局声明的。
+
+let局部声明
+var a = 2;
+{
+    let a = 3;
+}
+console.log(a);     // 2 ? let是局部变量声明，let声明只在区块内起作用，外部是不可以调用的。
+
+for(var i=0;i<10;i++){
+console.log('循环体中:'+i);
+}
+console.log('循环体外:'+i);
+
+for(let i=0;i<10;i++){
+console.log('循环体中:'+i);
+}
+console.log('循环体外:'+i);
+
+const声明常量
+const a = '技术javascript';
+var a = 'javascript技术';   
+console.log(a);             // 会发现已经报错，无法编译了
+ES6的3种声明方式，var、let、const，这三种方式各有所长，既然已经学习了新技术，我们就要拥抱它，试着在你的项目中根据情况用let和const进行声明吧，不要再只使用var了。
+
+第3节：变量的解构赋值
+数组的解构赋值：
+let a = 0;
+let b = 1;
+let c = 2;
+
+let [a,[b, c]] = [1,2,3];
+
+数组模式和赋值模式统一
+let [a, [b, c], d] = [1, [2, 3], 4];
+
+解构的默认值：
+let [foo = true] = [];
+console.log(foo);       // true
+
+let [a, b="JavaScript"] = ["技术"];
+console.log(a+b);       // 技术JavaScript
+
+undefined和null的区别。
+let [a, b="JavaScript"] = ["技术", undefined];
+console.log(a+b);       // 技术JavaScript
+
+let [a, b="JavaScript"] = ["技术", null];
+console.log(a+b);       // 技术null
+
+对象的解构赋值
+let {foo, bar} = {foo: 'JavaScript', bar: '技术'};
+console.log(foo+bar);      // JSPang技术
+对象的解构与数组有一个重要的不同。数组的元素是按次序排列的，变量的取值由它的位置决定；而对象的属性没有次序，变量必须与属性同名，才能取到正确的值。
+
+圆括号的使用
+let foo;
+{foo} = {foo: 'JavaScript'};
+console.log(foo);               // 编译会报错。
+
+解决方法：({foo} = {foo: 'JavaScript'});
+console.log(foo);                   // 输出JavaScript
+
+字符串解构
+const [a,b,c,d,e,f]="JavaScript";
+console.log(a);
+console.log(b);
+console.log(c);
+console.log(d);
+console.log(e);
+console.log(f);
+
+在实战项目中解构Json数据格式还是很普遍的，有了ES6得帮助，提高了不少工作效率。
+
+数值和布尔值的解构赋值
+解构赋值时，如果等号右边是数值和布尔值，则会先转为对象。
+let {toString: s} = 123;
+s === Number.prototype.toString     // true
+
+let {toString: s} = true;
+s === Boolean.prototype.toString    // true
+
+let {prop: x} = undefined;      // TypeError
+let {prop: y} = null;           // TypeError
+
+函数参数的解构赋值
+function add([x, y]){
+    return x+y;
+}
+add([1, 2]);        // 3
+
+[[1, 2], [3, 4]].map(([a, b]) => a + b);    // [3, 7]
+
+function move({x=0, y=0} = {}){
+    return [x,y];
+}
+
+move({x:3, y:8});   // [3,8]
+move({x:3});        // [3,0]
+move({});           // [0,0]
+move();             // [0,0]
+
+
+用途：
+1、交换变量的值
+[x, y] = [y, x];
+
+2、从函数返回多个值
+// 返回一个数组
+function example(){
+    return [1, 2, 3];
+}
+var [a, b, c] = example();
+
+// 返回一个对象
+function example(){
+    return {
+        foo: 1,
+        bar: 2
+    };
+}
+var {foo, bar} = example();
+
+3、函数参数的定义
+function f([x, y, z]){...}
+f([1, 2, 3]);
+
+function f({x, y, z}){...}
+f({z: 3, y: 2, x: 1});
+
+4、提取JSON数据
+var jsonData = {
+    id: 42,
+    status: "ok",
+    data: [867, 5309]
+};
+
+let {id, status, data: number} = jsonData;
+console.log(id, status, number);
+
+5、函数参数的默认值
+jQuery.ajax = function(url, {
+    async = true,
+    beforeSend = function(){},
+    cache = true,
+    complete = function(){
+    },
+    crossDomain = false,
+    global = true,
+    //... more config
+}){
+    // ... do stuff
+}
+
+6、遍历Map结构
+var map = new Map();
+map.set('first', 'hello');
+map.set('second', 'world');
+
+for(let [key, value] of map){
+    console.log(key + " is " + value);
+}
+// first is hello
+// second is world
+
+// 获取键名
+for (let [key] of map) {
+    // ...
+}
+// 获取键值
+for (let [,value] of map) {
+    // ...
+}
+
+7、输入模块的制定方法
+const { SourceMapConsumer, SourceNode } = require('source-map');
+
+
+第4节：扩展运算符和rest运算符
+对象扩展运算符（...）
+function jspang(...arg){
+    console.log(arg[0]);
+    console.log(arg[1]);
+    console.log(arg[2]);
+    console.log(arg[3]);
+}
+jspang(1,2,3);
+我们先用一个例子说明，我们声明两个数组arr1和arr2，然后我们把arr1赋值给arr2，然后我们改变arr2的值，你会发现arr1的值也改变了，因为我们这是对内存堆栈的引用，而不是真正的赋值。
+let arr1 = ['www', 'jspang', 'com'];
+let arr2 = arr1;
+console.log(arr2);
+
+arr2.push('ShengHongyu');
+console.log(arr1);
+
+输出: ['www', 'jspang', 'com']
+['www', 'jspang', 'com', 'ShengHongyu']
+
+let arr1=['www','jspang','com'];
+//let arr2=arr1;
+let arr2=[...arr1];
+console.log(arr2);
+arr2.push('shengHongYu');
+console.log(arr2);
+console.log(arr1);
+
+rest运算符
+function jspang(first, ...arg){
+    console.log(arg.length);
+}
+jspang(0, 1, 2, 3, 4, 5, 6);  // 7个
+
+function jspang(first, ...arg){
+    for(let val of arg){
+        console.log(val);
+    }
+}
+jspang(0,1,2,3,4,5,6,7);
+
+第5节：字符串模版
+let jspang='技术胖';
+let blog = '非常高兴你能看到这篇文章，我是你的老朋友'+jspang+'。这节课我们学习字符串模版。';
+document.write(blog);
+
+let jspang='技术胖';
+let blog = `非常高兴你能看到这篇文章，我是你的老朋友${jspang}。这节课我们学习字符串模版。`;
+document.write(blog);
+
+let jspang='技术胖';
+let blog = `<b>非常高兴你能看到这篇文章</b>，我是你的老朋友${jspang}。<br/>这节课我们学习字符串模版。`;
+document.write(blog);
+
+let a=1;
+let b=2;
+let result=`${a+b}`;
+document.write(result);
+
+// 字符串查找 indexOf
+let jspang='技术胖';
+let blog = '非常高兴你能看到这篇文章，我是你的老朋友技术胖。这节课我们学习字符串模版。';
+document.write(blog.indexOf(jspang));
+
+// 判断开头是否存在 startsWith
+blog.startsWith(jspang);
+// 判断结尾是否存在 endsWith
+blog.endsWith(jspang);
+
+// 复制字符串
+document.write('jspang|'.repeat(3));
+
+第6节：ES6数字操作
+二进制和八进制
+二进制声明: OB开头； let b = 0B010111;
+八进制声明：0O开头； let b = 0O666;
+
+数字判断和转换  Number.isFinite(xx);  // 只要是数字，不论是浮点型还是整形都会返回true，其他时候会返回false。
+
+let a = 11/4;
+console.log(Number.isFinite(a));// true
+console.log(Number.isFinite('jspang'));// false
+console.log(Number.isFinite(NaN));// false
+console.log(Number.isFinite(undefined)); // false
+
+判断是否为整数Number.isInteger(xx)
+let a = 9.18;
+console.log(Number.isInteger(a)); // false
+
+整数转换Number.parseInt(xxx)和浮点型转换Number.parseFloat(xxx)
+let a = 9.18;
+console.log(Number.parseInt(a));    
+console.log(Number.parseFloat(a));
+
+整数取值范围操作
+let a = Math.pow(2, 53)-1;
+console.log(a);             // 9007199254740991
+
+最大安全整数
+console.log(Number.MAX_SAFE_INTEGER);
+
+最小安全整数
+console.log(Number.MIN_SAFE_INTEGER);
+
+安全整数判断isSafeInteger()
+let a = Math.pow(2, 53)-1;
+console.log(Number.isSafeInteger(a));   // true
+
+第7节：ES6中新增的数组知识（1）
+JSON数组格式转换
+let json = {
+    '0': 'jspang',
+    '1': '技术胖',
+    '2': 'web',
+    length: 3
+};
+let arr = Array.from(json);
+console.log(arr);
+
+Array.of()方法    // 把一堆文本或者变量转换成数组
+let arr = Array.of(2,3,4,5,6);
+console.log(arr);
+let arr =Array.of('技术胖','jspang','大胖逼逼叨');
+console.log(arr);
+
+find( )实例方法
+let arr=[1,2,3,4,5,6,7,8,9];
+console.log(arr.find(function(value,index,arr){
+    return value > 5;
+}))
+控制台输出了6，说明找到了符合条件的值，并进行返回了，如果找不到会显示undefined。
+
+第8节：ES6中新增的数组知识（2）
+fill()实例方法 作用是把数组进行填充，它接收三个参数，第一个参数是填充的变量，第二个是开始填充的位置，第三个是填充到的位置
+let arr = [0,1,2,3,4,5,6,7,8,9];
+arr.fill('jspang', 2, 5);
+console.log(arr);
+
+数组的遍历
+for...of循环
+let arr = ['javascript', 'html', 'css'];
+for(let item of arr){
+    console.log(item);
+}
+for…of数组索引:有时候开发中是需要数组的索引的，那我们可以使用下面的代码输出数组索引
+for(let index of arr.keys()){
+    console.log(index);
+}
+同时输出数组的内容和索引：
+let arr=['jspang','技术胖','大胖逼逼叨']
+for (let [index,val] of arr.entries()){
+    console.log(index+':'+val);
+}
+
+entries( )实例方法：
+let arr=['jspang','技术胖','大胖逼逼叨']
+let list=arr.entries();
+console.log(list.next().value);
+console.log(list.next().value);
+console.log(list.next().value);
+
+第9节：ES6中的箭头函数和扩展
+function add(a,b){
+    return a+b;
+}
+console.log(add(1,2));
+
+function add(a,b=1){
+    if(a == 0){
+        throw new Error('This is error')
+    }
+     return a+b;
+}
+ 
+console.log(add(0));
+
+获得需要传递的参数个数
+function add(a,b){
+    'use strict'
+    if(a == 0){
+        throw new Error('This is error');
+    }
+     return a+b;
+} 
+console.log(add.length);
+
+箭头函数
+var add =(a,b=1) => a+b;
+console.log(add(1));
+{}的使用 在箭头函数中，方法体内如果是两句话，那就需要在方法体外边加上{}括号。
+
+第10节：ES6中的函数和数组补漏
+对象的函数解构
+let json = {
+    a:'jspang',
+    b:'技术胖'
+}
+function fun({a,b='jspang'}){
+    console.log(a,b);
+}
+fun(json);
+
+数组的函数解构
+let arr = ['jspang','技术胖','免费教程'];
+function fun(a,b,c){
+    console.log(a,b,c);
+}
+fun(...arr);
+
+in的用法 in是用来判断对象或者数组中是否存在某个值的
+let arr=[,,,,,];
+console.log(arr.length); //5  数组中其实全是空值，这就是一个坑啊。
+
+let arr=[,,,,,];
+console.log(0 in arr); //false
+ 
+let arr1=['jspang','技术胖'];
+console.log(0 in arr1);  // true
+
+数组的遍历方法
+1.forEach
+let arr=['jspang','技术胖','前端教程']; 
+arr.forEach((val,index)=>console.log(index,val));
+
+2.filter
+let arr=['jspang','技术胖','前端教程']; 
+arr.filter(x=>console.log(x));
+
+3.some
+let arr=['jspang','技术胖','前端教程'];
+arr.some(x=>console.log(x));
+
+4.map
+let arr=['jspang','技术胖','前端教程'];
+console.log(arr.map(x=>'web'));
+
+第11节：ES6中对象
+对象赋值
+let name="jspang";
+let skill= 'web';
+var obj= {name,skill};
+console.log(obj);  //Object {name: "jspang", skill: "web"}
+
+对象Key值构建
+let key='skill';
+var obj={
+    [key]:'web'
+}
+console.log(obj.skill);
+
+自定义对象方法
+var obj={
+    add:function(a,b){
+        return a+b;
+    }
+}
+console.log(obj.add(1,2));  //3
+
+Object.is() 对象比较
+var obj1 = {name:'jspang'};
+var obj2 = {name:'jspang'};
+console.log(obj1.name === obj2.name);//true
+
+var obj1 = {name:'jspang'};
+var obj2 = {name:'jspang'};
+console.log(obj1.name === obj2.name);//true
+console.log(Object.is(obj1.name,obj2.name)); //true
+
+console.log(+0 === -0);  //true
+console.log(NaN === NaN ); //false
+console.log(Object.is(+0,-0)); //false
+console.log(Object.is(NaN,NaN)); //true
+===为同值相等，is()为严格相等。
+
+Object.assign()合并对象
+
+var a={a:'jspang'};
+var b={b:'技术胖'};
+var c={c:'web'}; 
+let d=Object.assign(a,b,c)
+console.log(d);
+
+
+第12节：Symbol在对象中的作用
+// 声明Symbol
+var a = new String;
+var b = new Number;
+var c = new Boolean;
+var d = new Array;
+var e = new Object;
+var f = Symbol();
+console.log(typeof(f));
+// 打印
+var g = Symbol('jspang');
+console.log(g);
+console.log(g.toString());
+
+// Symbol对象元素的保护作用
+// 未保护
+var obj = {name: 'jspang', skill: 'web', age: 18};
+for(let item in obj){
+    console.log(obj[item]);
+}
+
+// 保护
+let obj = {name: 'jspang', skill: 'web'};
+let age = Symbol();
+obj[age] = 18;
+for(let item in obj){
+    console.log(obj[item]);
+}
+console.log(obj);
+
+第13节：Set和WeakSet数据结构
+Set的声明
+let setArr = new Set(['jspang', '技术胖', 'web', 'jspang']);
+console.log(setArr);    // Set {'jspang', '技术胖', 'web'}
+Set和Array 的区别是Set不允许内部有重复的值，如果有只显示一个，相当于去重。虽然Set很像数组，但是他不是数组。
+
+Set值的增删查
+追加add：
+let setArr = new Set(['jspang', '技术胖', 'web', 'jspang']);
+console.log(setArr);
+
+setArr.add('前端职场');
+console.log(setArr);
+
+删除delete：
+let setArr = new Set(['jspang','技术胖','web','jspang']);
+console.log(setArr);//Set {"jspang", "技术胖", "web"}
+ 
+setArr.add('前端职场');
+console.log(setArr); //Set {"jspang", "技术胖", "web", "前端职场"}
+ 
+setArr.delete('前端职场');
+console.log(setArr); //Set {"jspang", "技术胖", "web"}
+
+查找has：  返回的是true或者false
+let setArr = new Set(['jspang','技术胖','web','jspang']);
+console.log(setArr);
+console.log(setArr.has('jspang'));
+
+删除clear：
+let setArr = new Set(['jspang','技术胖','web','jspang']);
+console.log(setArr);
+setArr.clear();
+console.log(setArr);
+
+size属性：
+let setArr = new Set(['jspang','技术胖','web','jspang']);
+for(let item of setArr){
+    console.log(item);
+}
+console.log(setArr.size);
+
+forEach循环
+let setArr = new Set(['jspang','技术胖','web','jspang']);
+setArr.foeEach((value)=>console.log(value));
+
+WeakSet的声明
+let weakObj = new WeakSet();
+let obj = {a: 'jspang', b: '技术群'};
+weakObj.add(obj);
+console.log(weakOjb);
+如果你直接在new 的时候就放入值，将报错。
+
+WeakSet里边的值也是不允许重复的
+let weakObj=new WeakSet();
+let obj={a:'jspang',b:'技术胖'}
+let obj1=obj;
+weakObj.add(obj);
+weakObj.add(obj1);
+console.log(weakObj); // 没有size属性 forEach方法
+
+总结：在实际开发中Set用的比较多，WeakSet用的并不多，但是他对传入值必须是对象作了很好的判断，我们灵活应用还是有一定的用处的。
+
+第14节：map数据结构
+在一些构建工具中是非常喜欢使用map这种数据结构来进行配置的，因为map是一种灵活，简单的适合一对一查找的数据结构。我们知道的数据结构，已经有了json和set。那map有什么特点。
+
+Json和map格式的对比：
+a、map的效率和灵活性更好
+let json = {
+    name: 'jspang',
+    skill: 'web'
+};
+console.log(json.name);
+这种反应的速度要低于数组和map结构。而且Map的灵活性要更好，你可以把它看成一种特殊的键值对，但你的key可以设置成数组，值也可以设置成字符串，让它不规律对应起来。
+var map = new Map();
+map.set(json, 'iam');
+console.log(map);
+
+map.set('jspang',json);
+console.log(map);
+
+map的增删查:
+取值get
+console.log(map.get(json));
+删除delete
+map.delete(json);
+console.log(map);
+size属性
+console.log(map.size);
+查找是否存在has
+console.log(map.has(json));
+清除所有元素clear
+map.clear();
+console.log(map);
+总结：map在现在开发中已经经常使用，它的灵活性和高效性是我们喜欢的。
+
+第15节：用Proxy进行预处理
+// proxy 代理 ES6增强 对象和函数（方法） 声明周期 预处理
+let obj = {
+    add: function(val){
+        return val + 100;
+    },
+    name: 'I am JsPang'
+};
+console.log(obj.add(100));
+console.log(obj.name);
+
+let pro = new Proxy({   // 对象体
+    add: function(val){
+        return val + 100;
+    },
+    name: 'I am JsPang'
+}, {    // 预处理
+    // get set 
+    get: function(target, key, property){
+        // do something...
+        console.log('come in get');
+        return target[key];
+    },
+    set: function(target, key, value, receiver){
+        console.log(` setting ${key} = ${value}`);
+        return target[key] = value;
+    }
+});
+console.log(pro.name);
+pro.name = '技术胖';
+console.log(pro.name);
+
+// apply
+let target = function(){
+    return 'I am JSPang';    
+};
+let handler = {
+    apply(target, ctx, args){
+        console.log('do apply');
+        return Reflect.apply(...arguments);
+    }    
+};
+
+let pro = new Proxy(target, handler);
+console.log(pro());
+
+第16节：promise对象的使用
+promise执行多步操作非常好用，那我们就来模仿一个多步操作的过程
+
+let state = 1;
+function step1(resolve, reject){
+    console.log('1.开始--洗菜做饭');
+    if(state == 1){
+        resolve('洗菜做饭--完成');
+    }else{
+        reject('洗菜做饭--错误');
+    }
+}
+
+function step2(resolve, reject){
+    console.log('2.开始--坐下来吃饭');
+    if(state == 2){
+        resolve('坐下来吃饭--完成');
+    }else{
+        reject('坐下来吃饭--错误');
+    }
+}
+
+function step3(resolve, reject){
+    console.log('3.开始--收拾桌子洗碗');
+    if(state == 1){
+        resolve('收拾桌子洗碗--完成');
+    }else{
+        reject('收拾桌子洗碗--错误');
+    }
+}
+
+new Promise(step1).then(function(val){
+    console.log(val);
+    return new Promise(step2);
+}).then(function(val){
+    console.log(val);
+    return new Promise(step3);
+}).then(function(val){
+   console.log(val);
+   return val; 
+});
+
+第17节：class类的使用
+类的声明
+class Coder{
+    name(val){
+        console.log(val);
+    }
+}
+let jspang = new Coder();
+jspang.name('jspang');
+
+class Coder{
+    name(val){
+        console.log(val);
+        return val;
+    }
+    skill(val){
+        console.log(this.name('jspang')+': '+'Skill:'+val);
+    }
+}
+let jspang = new Coder();
+jspang.name('jspang');
+jspang.skill('web');
+
+class Coder{
+    name(val){
+        console.log(val);
+        return val;
+    }
+    skill(val){
+        console.log(this.name('jspang')+': '+ 'Skill: '+val);
+    }
+    constructor(a, b){
+        this.a = a;
+        this.b = b;
+    }
+    add(){
+        return this.a + this.b;
+    }
+}
+
+let jspang = new Coder(1, 2);
+console.log(jspang.add());
+
+// class的继承
+class Htmler extends Coder {
+    
+}
+let pang = new Htmler();
+pang.name('jser');
+
+第18节：模块化操作
+在ES5中我们要进行模块华操作需要引入第三方类库，随着前后端分离，前端的业务日渐复杂，ES6为我们增加了模块话操作。模块化操作主要包括两个方面。
+
+export :负责进行模块化，也是模块的输出。
+import : 负责把模块引，也是模块的引入操作。
+
+// temp.js
+export var name = 'jspang';
+
+//index.js
+import {name} from './temp'
+console.log(name);
+
+多变量的输出
+var a ='jspang';
+var b ='技术胖';
+var c = 'web';
+ 
+export {a,b,c}
+函数的模块化输出
+
+export function add(a,b){
+    return a+b;
+}
+export function add(a,b){
+    return a+b;
+}
+
+as 的用法
+var a ='jspang';
+var b ='技术胖';
+var c = 'web';
+ 
+export {
+    x as a,
+    y as b,
+    z as c
+}
+
+export default的使用
+加上default相当是一个默认的入口。在一个文件里export default只能有一个。
+1.export
+
+export var a ='jspang';
+export function add(a,b){
+    return a+b;
+}
+export var a ='jspang';
+export function add(a,b){
+    return a+b;
+}
+对应的导入方式
+
+import {a,add} form './temp';//也可以分开写
+import {a,add} form './temp';//也可以分开写
+
+2.export defalut
+
+export default var a='jspang';
+export default var a='jspang';
+
+对应的引入方式
+import str from './temp';
+import str from './temp';
